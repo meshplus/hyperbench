@@ -405,7 +405,9 @@ func (c *Client) GetContext() (string, error) {
 	msg := Msg{
 		Contract: c.contract.ContractRaw,
 	}
+
 	bytes, err = json.Marshal(msg)
+
 	return string(bytes), err
 }
 

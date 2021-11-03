@@ -206,7 +206,6 @@ func (v *VM) BeforeRun() error {
 func (v *VM) Run(ctx common.TxContext) (*common.Result, error) {
 	v.index.Engine = ctx.EngineIdx
 	v.index.Tx = ctx.TxIdx
-
 	err := v.vm.CallByParam(lua.P{
 		Fn:      v.instance.RawGetString(run),
 		NRet:    1,
