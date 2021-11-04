@@ -1,0 +1,27 @@
+[engine]
+rate = 10
+duration = "30s"
+cap = 5
+
+[client]
+script = "benchmark/ethTransfer/script.lua"  # 脚本
+type = "eth"                         # 区块链类型
+contract = "benchmark/ethTransfer/contract"  # 合约目录路径
+config = "/Users/aiyoa/desktop/eth-test/data"  # 区块链SDK配置路径
+account = "UTC--2021-10-21T03-41-34.288690000Z--01eec173917c429901b41b98ac3dd300e060e698" #eth账户
+args = []                              # 合约参数路径
+
+[client.options] # 客户端选项
+
+[recorder.log]
+dump=false
+dir="./logs"
+level="debug"
+
+[recorder.csv]
+dir="./csv"
+
+
+
+
+

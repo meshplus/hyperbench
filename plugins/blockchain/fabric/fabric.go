@@ -92,6 +92,7 @@ func New(blockchainBase *base.BlockchainBase) (client *Fabric, err error) {
 
 // DeployContract deploy contract to fabric network
 func (f *Fabric) DeployContract() error {
+
 	//install chaincode
 	ccID := strconv.Itoa(int(time.Now().UnixNano()))
 	ccVersion := "0"
