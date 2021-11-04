@@ -35,9 +35,9 @@ func (m *LocalMaster) Prepare() (err error) {
 	if err != nil {
 		return errors.Wrap(err, "can not call user hook `BeforeDeploy`")
 	}
+
 	// prepare contract
 	err = m.masterVM.DeployContract()
-
 	if err != nil {
 		return errors.Wrap(err, "can not deploy contract")
 	}

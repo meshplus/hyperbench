@@ -147,6 +147,7 @@ func (l *LocalWorker) asyncJob() {
 		l.pool.Push(v)
 		l.wg.Done()
 	}()
+
 	res, err := v.Run(common.TxContext{
 		Context: l.ctx,
 		TxIndex: l.atomicAddIndex(),
