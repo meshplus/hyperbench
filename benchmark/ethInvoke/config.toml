@@ -2,7 +2,6 @@
 rate = 10
 duration = "10s"
 cap = 5
-urls=["localhost:8080"]
 [client]
 script = "benchmark/ethInvoke/script.lua"  # 脚本
 type = "eth"                         # 区块链类型
