@@ -7,21 +7,20 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"io/ioutil"
+	"log"
+	"math/big"
+	"time"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	store "github.com/meshplus/hyperbench/benchmark/ethInvoke/contract"
 	fcom "github.com/meshplus/hyperbench/common"
 	"github.com/meshplus/hyperbench/plugins/blockchain/base"
 	bcom "github.com/meshplus/hyperbench/plugins/blockchain/common"
-
-	"io/ioutil"
-	"log"
-	"math/big"
-	"time"
 
 	"github.com/spf13/viper"
 )
@@ -33,6 +32,7 @@ type ETH struct {
 	auth            *bind.TransactOpts
 	contractAddress common.Address
 	startBlock      uint64
+	contract        *Contract
 }
 
 //Msg contains message of context
@@ -80,12 +80,14 @@ func New(blockchainBase *base.BlockchainBase) (client *ETH, err error) {
 	auth.GasLimit = uint64(300000) // in units
 	auth.GasPrice = gasPrice
 	startBlock, err := ethClient.HeaderByNumber(context.Background(), nil)
+	contract, _ := NewContract()
 	client = &ETH{
 		BlockchainBase: blockchainBase,
 		ethClient:      ethClient,
 		privateKey:     privateKey,
 		auth:           auth,
 		startBlock:     startBlock.Number.Uint64(),
+		contract:       contract,
 	}
 
 	return
@@ -93,7 +95,7 @@ func New(blockchainBase *base.BlockchainBase) (client *ETH, err error) {
 func (e *ETH) DeployContract() error {
 
 	input := "1.0"
-	contractAddress, tx, instance, err := store.DeployStore(e.auth, e.ethClient, input)
+	contractAddress, tx, instance, err := e.contract.DeployStore(e.auth, e.ethClient, input)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -107,7 +109,7 @@ func (e *ETH) DeployContract() error {
 
 //Invoke invoke contract with funcName and args in eth network
 func (e *ETH) Invoke(invoke bcom.Invoke, ops ...bcom.Option) *fcom.Result {
-	instance, err := store.NewStore(e.contractAddress, e.ethClient)
+	instance, err := e.contract.NewStore(e.contractAddress, e.ethClient)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,17 +4,18 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"fmt"
+	"log"
+	"math"
+	"math/big"
+	"testing"
+
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
-	store "github.com/meshplus/hyperbench/benchmark/ethInvoke/contract"
-	"log"
-	"math"
-	"math/big"
-	"testing"
 )
+
 func TestClient(t *testing.T) {
 	t.Skip()
 	client, err := ethclient.Dial("/Users/aiyoa/desktop/eth-test/data/geth.ipc")
@@ -25,7 +26,7 @@ func TestClient(t *testing.T) {
 	fmt.Println("we have a connection")
 	_ = client // we'll use this in the upcoming sections
 }
-func TestBalance(t *testing.T){
+func TestBalance(t *testing.T) {
 	t.Skip()
 	client, err := ethclient.Dial("/Users/aiyoa/desktop/eth-test/data/geth.ipc")
 	account := common.HexToAddress("01eec173917c429901b41b98ac3dd300e060e698")
@@ -41,7 +42,7 @@ func TestBalance(t *testing.T){
 
 	fmt.Println(ethValue)
 }
-func TestTransfer(t *testing.T){
+func TestTransfer(t *testing.T) {
 	t.Skip()
 	client, err := ethclient.Dial("/Users/aiyoa/desktop/eth-test/data/geth.ipc")
 	if err != nil {
@@ -72,7 +73,7 @@ func TestTransfer(t *testing.T){
 	}
 
 	value := big.NewInt(1000) // in wei (1 eth)
-	gasLimit := uint64(21000)                // in units
+	gasLimit := uint64(21000) // in units
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Fatal(err)
@@ -135,19 +136,20 @@ func TestDeployContract(t *testing.T) {
 		log.Fatal(err)
 	}
 	chainID, err := client.NetworkID(context.Background())
-	auth,_ := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+	auth, _ := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0)     // in wei
 	auth.GasLimit = uint64(300000) // in units
 	auth.GasPrice = gasPrice
 	input := "1.0"
-	contractAddress, tx, instance, err := store.DeployStore(auth, client, input)
+	contract, _ := NewContract()
+	contractAddress, tx, instance, err := contract.DeployStore(auth, client, input)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(contractAddress.Hex())   // 0xA103dA779fCB208c02759BB6fBD3eD1d354B9E16
-	fmt.Println(tx.Hash().Hex()) // 0x1690003dca86eba1491e0aaa5a1cfde3fa39cafd90058537d8a0c8c4b6863d25
+	fmt.Println(contractAddress.Hex()) // 0xA103dA779fCB208c02759BB6fBD3eD1d354B9E16
+	fmt.Println(tx.Hash().Hex())       // 0x1690003dca86eba1491e0aaa5a1cfde3fa39cafd90058537d8a0c8c4b6863d25
 
 	_ = instance
 }
@@ -185,14 +187,14 @@ func TestInvoke(t *testing.T) {
 		log.Fatal(err)
 	}
 	chainID, err := client.NetworkID(context.Background())
-	auth,_ := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+	auth, _ := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0)     // in wei
 	auth.GasLimit = uint64(300000) // in units
 	auth.GasPrice = gasPrice
 	contractAddress := common.HexToAddress("0x7c376C8ED768018aa53d3C37Eed637912fEAA782")
-
-	instance, err := store.NewStore(contractAddress, client)
+	contract, _ := NewContract()
+	instance, err := contract.NewStore(contractAddress, client)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,10 +1,9 @@
-//// Code generated - DO NOT EDIT.
-//// This file is a generated binding and any manual changes will be lost.
-//
-package store
+package eth
 
 import (
+	"io/ioutil"
 	"math/big"
+	"path"
 	"strings"
 
 	ethereum "github.com/ethereum/go-ethereum"
@@ -13,6 +12,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/event"
+	fcom "github.com/meshplus/hyperbench/common"
+	"github.com/spf13/viper"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -26,20 +27,51 @@ var (
 	_ = event.NewSubscription
 )
 
-// StoreABI is the input ABI used to generate the binding from.
-const StoreABI = "[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_version\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"key\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"value\",\"type\":\"bytes32\"}],\"name\":\"ItemSet\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"items\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"key\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"value\",\"type\":\"bytes32\"}],\"name\":\"setItem\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+type Contract struct {
+	ABI string
+	BIN string
+}
 
-// StoreBin is the compiled bytecode used for deploying new contracts.
-var StoreBin = "0x608060405234801561001057600080fd5b5060405161072138038061072183398181016040528101906100329190610162565b806000908051906020019061004892919061004f565b505061031a565b82805461005b90610234565b90600052602060002090601f01602090048101928261007d57600085556100c4565b82601f1061009657805160ff19168380011785556100c4565b828001600101855582156100c4579182015b828111156100c35782518255916020019190600101906100a8565b5b5090506100d191906100d5565b5090565b5b808211156100ee5760008160009055506001016100d6565b5090565b6000610105610100846101d0565b6101ab565b905082815260208101848484011115610121576101206102fa565b5b61012c848285610201565b509392505050565b600082601f830112610149576101486102f5565b5b81516101598482602086016100f2565b91505092915050565b60006020828403121561017857610177610304565b5b600082015167ffffffffffffffff811115610196576101956102ff565b5b6101a284828501610134565b91505092915050565b60006101b56101c6565b90506101c18282610266565b919050565b6000604051905090565b600067ffffffffffffffff8211156101eb576101ea6102c6565b5b6101f482610309565b9050602081019050919050565b60005b8381101561021f578082015181840152602081019050610204565b8381111561022e576000848401525b50505050565b6000600282049050600182168061024c57607f821691505b602082108114156102605761025f610297565b5b50919050565b61026f82610309565b810181811067ffffffffffffffff8211171561028e5761028d6102c6565b5b80604052505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b6103f8806103296000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c806348f343f31461004657806354fd4d5014610076578063f56256c714610094575b600080fd5b610060600480360381019061005b91906101c0565b6100b0565b60405161006d9190610275565b60405180910390f35b61007e6100c8565b60405161008b91906102b9565b60405180910390f35b6100ae60048036038101906100a991906101ed565b610156565b005b60016020528060005260406000206000915090505481565b600080546100d590610334565b80601f016020809104026020016040519081016040528092919081815260200182805461010190610334565b801561014e5780601f106101235761010080835404028352916020019161014e565b820191906000526020600020905b81548152906001019060200180831161013157829003601f168201915b505050505081565b8060016000848152602001908152602001600020819055507fe79e73da417710ae99aa2088575580a60415d359acfad9cdd3382d59c80281d4828260405161019f929190610290565b60405180910390a15050565b6000813590506101ba816103ab565b92915050565b6000602082840312156101d6576101d5610395565b5b60006101e4848285016101ab565b91505092915050565b6000806040838503121561020457610203610395565b5b6000610212858286016101ab565b9250506020610223858286016101ab565b9150509250929050565b610236816102f7565b82525050565b6000610247826102db565b61025181856102e6565b9350610261818560208601610301565b61026a8161039a565b840191505092915050565b600060208201905061028a600083018461022d565b92915050565b60006040820190506102a5600083018561022d565b6102b2602083018461022d565b9392505050565b600060208201905081810360008301526102d3818461023c565b905092915050565b600081519050919050565b600082825260208201905092915050565b6000819050919050565b60005b8381101561031f578082015181840152602081019050610304565b8381111561032e576000848401525b50505050565b6000600282049050600182168061034c57607f821691505b602082108114156103605761035f610366565b5b50919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b600080fd5b6000601f19601f8301169050919050565b6103b4816102f7565b81146103bf57600080fd5b5056fea264697066735822122005a5951e5067dae6b917ec5a4c3ccb95f0179d7371d220df636bc264a789ee6e64736f6c63430008060033"
+// NewContract initiates abi and bin files of contract
+func NewContract() (contract *Contract, err error) {
+	files, err := ioutil.ReadDir(viper.GetString(fcom.ClientContractPath))
+	var abiData, binData []byte
+	if err != nil {
+		return nil, err
+	}
+	for _, file := range files {
+		if path.Ext(file.Name()) == ".abi" {
+			abiData, err = ioutil.ReadFile(viper.GetString(fcom.ClientContractPath) + "/" + file.Name())
+			if err != nil {
+				return nil, err
+			}
+		}
+		if path.Ext(file.Name()) == ".bin" {
+			binData, err = ioutil.ReadFile(viper.GetString(fcom.ClientContractPath) + "/" + file.Name())
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	abi := (string)(abiData)
+	bin := (string)(binData)
+	contract = &Contract{
+		ABI: abi,
+		BIN: bin,
+	}
+	return contract, nil
+}
 
 // DeployStore deploys a new Ethereum contract, binding an instance of Store to it.
-func DeployStore(auth *bind.TransactOpts, backend bind.ContractBackend, _version string) (common.Address, *types.Transaction, *Store, error) {
-	parsed, err := abi.JSON(strings.NewReader(StoreABI))
+func (c *Contract) DeployStore(auth *bind.TransactOpts, backend bind.ContractBackend, _version string) (common.Address, *types.Transaction, *Store, error) {
+
+	parsed, err := abi.JSON(strings.NewReader(c.ABI))
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
 
-	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(StoreBin), backend, _version)
+	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(c.BIN), backend, _version)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
@@ -106,8 +138,8 @@ type StoreTransactorRaw struct {
 }
 
 // NewStore creates a new instance of Store, bound to a specific deployed contract.
-func NewStore(address common.Address, backend bind.ContractBackend) (*Store, error) {
-	contract, err := bindStore(address, backend, backend, backend)
+func (c *Contract) NewStore(address common.Address, backend bind.ContractBackend) (*Store, error) {
+	contract, err := c.bindStore(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
@@ -115,8 +147,8 @@ func NewStore(address common.Address, backend bind.ContractBackend) (*Store, err
 }
 
 // NewStoreCaller creates a new read-only instance of Store, bound to a specific deployed contract.
-func NewStoreCaller(address common.Address, caller bind.ContractCaller) (*StoreCaller, error) {
-	contract, err := bindStore(address, caller, nil, nil)
+func (c *Contract) NewStoreCaller(address common.Address, caller bind.ContractCaller) (*StoreCaller, error) {
+	contract, err := c.bindStore(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -124,8 +156,8 @@ func NewStoreCaller(address common.Address, caller bind.ContractCaller) (*StoreC
 }
 
 // NewStoreTransactor creates a new write-only instance of Store, bound to a specific deployed contract.
-func NewStoreTransactor(address common.Address, transactor bind.ContractTransactor) (*StoreTransactor, error) {
-	contract, err := bindStore(address, nil, transactor, nil)
+func (c *Contract) NewStoreTransactor(address common.Address, transactor bind.ContractTransactor) (*StoreTransactor, error) {
+	contract, err := c.bindStore(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -133,8 +165,8 @@ func NewStoreTransactor(address common.Address, transactor bind.ContractTransact
 }
 
 // NewStoreFilterer creates a new log filterer instance of Store, bound to a specific deployed contract.
-func NewStoreFilterer(address common.Address, filterer bind.ContractFilterer) (*StoreFilterer, error) {
-	contract, err := bindStore(address, nil, nil, filterer)
+func (c *Contract) NewStoreFilterer(address common.Address, filterer bind.ContractFilterer) (*StoreFilterer, error) {
+	contract, err := c.bindStore(address, nil, nil, filterer)
 	if err != nil {
 		return nil, err
 	}
@@ -142,8 +174,8 @@ func NewStoreFilterer(address common.Address, filterer bind.ContractFilterer) (*
 }
 
 // bindStore binds a generic wrapper to an already deployed contract.
-func bindStore(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
-	parsed, err := abi.JSON(strings.NewReader(StoreABI))
+func (c *Contract) bindStore(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+	parsed, err := abi.JSON(strings.NewReader(c.ABI))
 	if err != nil {
 		return nil, err
 	}

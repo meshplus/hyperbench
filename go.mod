@@ -34,7 +34,7 @@ require (
 	github.com/sykesm/zap-logfmt v0.0.2 // indirect
 	github.com/yuin/gluamapper v0.0.0-20150323120927-d836955830e7
 	github.com/yuin/gopher-lua v0.0.0-20190206043414-8bfc7677f583
-	golang.org/x/sys v0.0.0-20211107104306-e0b2ad06fe42 // indirect
+	golang.org/x/sys v0.0.0-20211108224332-cbcd623f202e // indirect
 	golang.org/x/tools v0.1.7 // indirect
 	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
 	layeh.com/gopher-luar v1.0.8-0.20190807124245-b07e371a3bb0
