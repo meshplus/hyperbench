@@ -30,9 +30,9 @@ func Unpack(prefix string) error {
 
 	// unpack the path with prefix "lua"
 	err = FileSystem.WalkPrefix(prefix, walk)
-	failpoint.Inject("unpack-err", func() {
+	if _, ok := failpoint.Eval(_curpkg_("unpack-err")); ok {
 		err = errors.New("unpack-err")
-	})
+	}
 	if err != nil {
 		logger.Errorf("can not unpack: %v", err)
 	}
@@ -45,9 +45,9 @@ func walk(name string, file packr.File) error {
 
 	_, err = buf.ReadFrom(file)
 
-	failpoint.Inject("walk-buf-err", func() {
+	if _, ok := failpoint.Eval(_curpkg_("walk-buf-err")); ok {
 		err = errors.New("walk-buf-err")
-	})
+	}
 
 	if err != nil {
 		logger.Errorf("can not read file(%v) from box: %v", name, err)
@@ -81,9 +81,9 @@ func EnsureFileExist(path string, content []byte) (bool, error) {
 
 		// create file
 		f, err = os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
-		failpoint.Inject("openfile-err", func() {
+		if _, ok := failpoint.Eval(_curpkg_("openfile-err")); ok {
 			err = errors.New("openfile-err")
-		})
+		}
 		if err != nil {
 			logger.Errorf("can not open file (%v): %v", path, err)
 			return false, err
@@ -91,9 +91,9 @@ func EnsureFileExist(path string, content []byte) (bool, error) {
 
 		// write file
 		_, err = f.Write(content)
-		failpoint.Inject("writefile-err", func() {
+		if _, ok := failpoint.Eval(_curpkg_("writefile-err")); ok {
 			err = errors.New("writefile-err")
-		})
+		}
 		if err != nil {
 			logger.Errorf("can not write file (%v): %v", path, err)
 			return false, err
@@ -101,9 +101,9 @@ func EnsureFileExist(path string, content []byte) (bool, error) {
 
 		// close file
 		err = f.Close()
-		failpoint.Inject("closefile-err", func() {
+		if _, ok := failpoint.Eval(_curpkg_("closefile-err")); ok {
 			err = errors.New("closefile-err")
-		})
+		}
 		if err != nil {
 			logger.Errorf("can not close file (%v): %v", path, err)
 			return false, err
