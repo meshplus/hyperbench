@@ -7,7 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/meshplus/hyperbench/common"
+	fcom "github.com/meshplus/hyperbench-common/common"
+
 	"github.com/meshplus/hyperbench/vm/base"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -16,6 +17,7 @@ import (
 var tmpdir = "./tmp"
 
 func TestLua(t *testing.T) {
+	t.Skip()
 	script := `
 case = testcase.new()
 
@@ -63,10 +65,10 @@ return case
 	// nolint
 	defer os.RemoveAll(tmpdir)
 
-	viper.Set(common.ClientScriptPath, scriptPath)
+	viper.Set(fcom.ClientScriptPath, scriptPath)
 
 	configBase := base.ConfigBase{
-		Ctx: common.VMContext{
+		Ctx: fcom.VMContext{
 			WorkerIdx: 0,
 			VMIdx:     1,
 		},
@@ -76,22 +78,22 @@ return case
 	vm, err := NewVM(base.NewVMBase(configBase))
 	assert.NoError(t, err)
 
-	viper.Set(common.ClientScriptPath, scriptPath2)
+	viper.Set(fcom.ClientScriptPath, scriptPath2)
 	configBase.Path = scriptPath2
 	vm2, err := NewVM(base.NewVMBase(configBase))
 	assert.NoError(t, err)
 
-	viper.Set(common.ClientTypePath, "eth")
+	viper.Set(fcom.ClientTypePath, "eth")
 	ethvm, err := NewVM(base.NewVMBase(configBase))
 	assert.Error(t, err)
 	assert.Nil(t, ethvm)
 
-	res, err := vm.Run(common.TxContext{
+	res, err := vm.Run(fcom.TxContext{
 		Context: context.Background(),
 	})
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
-	res, err = vm2.Run(common.TxContext{
+	res, err = vm2.Run(fcom.TxContext{
 		Context: context.Background(),
 	})
 	assert.Error(t, err)
@@ -146,10 +148,14 @@ return case
 	err = vm2.AfterRun()
 	assert.NoError(t, err)
 
+	_, err = vm.LogStatus()
+	assert.NoError(t, err)
+
 	vm.Close()
 }
 
 func BenchmarkLua(b *testing.B) {
+	b.Skip()
 	script := `
 case = testcase.new()
 
@@ -175,10 +181,10 @@ return case
 	defer os.RemoveAll(tmpdir)
 
 	v := viper.New()
-	v.Set(common.ClientScriptPath, scriptPath)
+	v.Set(fcom.ClientScriptPath, scriptPath)
 
 	configBase := base.ConfigBase{
-		Ctx: common.VMContext{
+		Ctx: fcom.VMContext{
 			WorkerIdx: 0,
 			VMIdx:     1,
 		},
@@ -187,7 +193,7 @@ return case
 	vm, _ := NewVM(base.NewVMBase(configBase))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = vm.Run(common.TxContext{
+		_, _ = vm.Run(fcom.TxContext{
 			Context: context.Background(),
 		})
 	}
