@@ -40,3 +40,4 @@ require (
 replace layeh.com/gopher-luar => github.com/layeh/gopher-luar v1.0.8-0.20190807124245-b07e371a3bb0
 
 go 1.13
+
