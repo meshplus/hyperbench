@@ -15,6 +15,12 @@ import (
 	"github.com/meshplus/hyperbench/vm"
 )
 
+// TxCount is the Statistics of sent and missed transactions
+type TxCount struct {
+	Sent   int64
+	Missed int64
+}
+
 // LocalWorker is the local Worker implement
 type LocalWorker struct {
 	conf      LocalWorkerConfig
@@ -29,6 +35,7 @@ type LocalWorker struct {
 	done      chan struct{}
 	colRet    chan collector.Collector
 	colReq    chan struct{}
+	missedTx  int64
 }
 
 // LocalWorkerConfig define the local worker need config.
@@ -49,6 +56,7 @@ func NewLocalWorker(config LocalWorkerConfig) (*LocalWorker, error) {
 		done:      make(chan struct{}),
 		colReq:    make(chan struct{}),
 		colRet:    make(chan collector.Collector),
+		missedTx:  0,
 	}
 	// init engine
 	eg := engine.NewEngine(engine.BaseEngineConfig{
@@ -125,6 +133,11 @@ func (l *LocalWorker) AfterRun() (err error) {
 	return err
 }
 
+// Statistic get the number of sent and missed transactions
+func (l *LocalWorker) Statistics() (int64, int64) {
+	return l.idx.TxIdx + 1, l.missedTx
+}
+
 func (l *LocalWorker) runCollector() {
 
 	defer func() {
@@ -168,6 +181,7 @@ func (l *LocalWorker) asyncJob() {
 		l.wg.Done()
 	}()
 	if v == nil {
+		atomic.AddInt64(&l.missedTx, 1)
 		// if worker can not get vm from pool, just shortcut
 		return
 	}

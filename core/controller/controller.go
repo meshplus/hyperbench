@@ -125,14 +125,12 @@ func (l *ControllerImpl) Run() (err error) {
 	tick := time.NewTicker(duration)
 	go func() {
 		for {
-			select {
-			case <-tick.C:
-				l.end, err = l.master.LogStatus()
-				if err != nil {
-					l.logger.Error(err)
-				}
-				return
+			<-tick.C
+			l.end, err = l.master.LogStatus()
+			if err != nil {
+				l.logger.Error(err)
 			}
+			tick.Stop()
 		}
 	}()
 	for _, w := range l.workerClients {
@@ -157,15 +155,26 @@ func (l *ControllerImpl) Run() (err error) {
 		l.logger.Notice(err)
 	}
 	if err == nil {
-		l.logStatisticData(sd)
+		totalSent, totalMissed := int64(0), int64(0)
+		for _, w := range l.workerClients {
+			sent, missed := w.worker.Statistics()
+			totalSent += sent
+			totalMissed += missed
+		}
+		l.logStatisticData(sd, totalSent, totalMissed)
 	}
 
 	l.logger.Notice("finish")
 	return nil
 }
 
-func (l *ControllerImpl) logStatisticData(sd *fcom.RemoteStatistic) {
-
+func (l *ControllerImpl) logStatisticData(sd *fcom.RemoteStatistic, sent int64, missed int64) {
+	duration := viper.GetDuration(fcom.EngineDurationPath)
+	total := sent + missed
+	ctps := float64(sent*1e9) / float64(duration)
+	l.logger.Notice("")
+	l.logger.Notice("\t\tSent\t\tMissed\t\tTotal\t\tcTps")
+	l.logger.Noticef("\t\t%v\t\t%v\t\t%v\t\t%.1f", sent, missed, total, ctps)
 	l.logger.Notice("")
 	l.logger.Notice("       From        \t         To           \tBlk\tTx\tTps\tBps")
 	l.logger.Noticef("%s\t%s\t%v\t%v\t%.1f\t%.1f",
