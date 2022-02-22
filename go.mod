@@ -30,9 +30,10 @@ require (
 	github.com/xuperchain/contract-sdk-go v1.0.0
 	github.com/yuin/gopher-lua v0.0.0-20190206043414-8bfc7677f583
 	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
+	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
 	golang.org/x/tools v0.1.9 // indirect
 	gonum.org/v1/gonum v0.6.0 // indirect
 )
 
 go 1.13
+
