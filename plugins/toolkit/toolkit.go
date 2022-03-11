@@ -2,7 +2,7 @@ package toolkit
 
 import (
 	"encoding/hex"
-	"fmt"
+	"encoding/json"
 	"reflect"
 )
 
@@ -28,16 +28,12 @@ func (t *ToolKit) RandInt(min, max int) int {
 
 // String convert to string
 func (t *ToolKit) String(input interface{}, offsets ...int) string {
-
 	v := reflect.ValueOf(input)
 	switch v.Kind() {
 	case reflect.Ptr:
 		return t.String(v.Elem().Interface(), offsets...)
 	case reflect.Slice:
-		bs, ok := input.([]byte)
-		if !ok {
-			return ""
-		}
+		bs := transferToBts(input)
 		l := len(bs)
 		start, end := 0, l
 		if len(offsets) > 0 && offsets[0] <= l {
@@ -46,9 +42,9 @@ func (t *ToolKit) String(input interface{}, offsets ...int) string {
 		if len(offsets) > 1 && offsets[1] <= l+1 {
 			start = offsets[1]
 		}
-		fmt.Println(bs, start, end)
 		return string(bs[start:end])
 	case reflect.Array:
+		bs := transferToBts(input)
 		l := v.Type().Len()
 		start, end := 0, l
 		if len(offsets) > 0 && offsets[0] <= l {
@@ -59,12 +55,24 @@ func (t *ToolKit) String(input interface{}, offsets ...int) string {
 		}
 		ss := make([]byte, 0, end-start)
 		for i := start; i < end; i++ {
-			ss = append(ss, v.Index(i).Interface().(byte))
+			ss = append(ss, bs[i])
 		}
 		return string(ss)
 	}
-	fmt.Println("=====")
 	return ""
+}
+
+func transferToBts(input interface{}) []byte {
+	bs, ok := input.([]byte)
+	if !ok {
+		bs = []byte{}
+		jsData, _ := json.Marshal(input)
+		err := json.Unmarshal(jsData, &bs)
+		if err != nil {
+			return []byte{}
+		}
+	}
+	return bs
 }
 
 // Hex encode string as hex string
