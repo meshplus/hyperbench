@@ -22,6 +22,11 @@ func Test_toolKit(t *testing.T) {
 		return case.toolkit.RandStr(10)
 		end
 		`,
+			`
+		function run()
+		return case.toolkit:RandStr(10)
+		end
+		`,
 		}
 		for _, script := range scripts {
 			lvalue, err := runLuaRunFunc(L, script)
@@ -38,6 +43,11 @@ func Test_toolKit(t *testing.T) {
 		return case.toolkit.RandInt(50,51)
 		end
 		`,
+			`
+		function run()
+		return case.toolkit:RandInt(50,51)
+		end
+		`,
 		}
 		for _, script := range scripts {
 			lvalue, err := runLuaRunFunc(L, script)
@@ -52,6 +62,11 @@ func Test_toolKit(t *testing.T) {
 			`
 		function run()
 		return case.toolkit.Hex("aaaaaa")
+		end
+		`,
+			`
+		function run()
+		return case.toolkit:Hex("aaaaaa")
 		end
 		`,
 		}
@@ -75,6 +90,17 @@ func Test_toolKit(t *testing.T) {
 			`
 		function run()
 		return case.toolkit.String("aaaaaa")
+		end
+		`,
+
+			`
+		function run()
+		return case.toolkit:String("aaaaaa",1,2)
+		end
+		`,
+			`
+		function run()
+		return case.toolkit:String("aaaaaa")
 		end
 		`,
 		}

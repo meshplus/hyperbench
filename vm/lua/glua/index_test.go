@@ -1,7 +1,7 @@
 package glua
 
 import (
-	"github.com/meshplus/hyperbench/plugins/index"
+	idex "github.com/meshplus/hyperbench/plugins/index"
 	"github.com/stretchr/testify/assert"
 	lua "github.com/yuin/gopher-lua"
 	"testing"
@@ -12,12 +12,14 @@ func Test_index(t *testing.T) {
 	defer L.Close()
 	mt := L.NewTypeMetatable("case")
 	L.SetGlobal("case", mt)
-	passIdx := &index.Index{1, 1, 1, 1}
+	passIdx := &idex.Index{1, 1, 1, 1}
 
 	cLua := newIdexIndex(L, passIdx)
+	passIdx.Tx = 2
 	L.SetField(mt, "index", cLua)
 	scripts := []string{`
 		function run()
+			print("tx:",case.index.Tx)
             case.index.Worker=2
             case.index.VM=2
             case.index.Engine=2
@@ -28,10 +30,12 @@ func Test_index(t *testing.T) {
 	for _, script := range scripts {
 		lvalue, err := runLuaRunFunc(L, script)
 		assert.Nil(t, err)
-		idx := &index.Index{}
-		err = TableLua2GoStruct(lvalue.(*lua.LTable), idx)
+		idx := &idex.Index{}
+		l1, err := Lua2Go(lvalue)
+		idx, ok := l1.(*idex.Index)
+		assert.True(t, ok)
 		assert.Nil(t, err)
-		assert.Equal(t, idx, &index.Index{Worker: 2, VM: 2, Engine: 2, Tx: 2})
+		assert.Equal(t, idx, &idex.Index{Worker: 2, VM: 2, Engine: 2, Tx: 2})
 	}
 
 }

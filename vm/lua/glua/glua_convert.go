@@ -2,11 +2,14 @@ package glua
 
 import (
 	"encoding/json"
+	"fmt"
 	fcom "github.com/meshplus/hyperbench-common/common"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	"github.com/yuin/gopher-lua"
+	"math/big"
 	"reflect"
+	"strconv"
 )
 
 //Go2Lua convert go interface val to lua.LValue value and reutrn
@@ -100,12 +103,27 @@ func Lua2Go(value lua.LValue) (interface{}, error) {
 func go2Lua(L *lua.LState, value interface{}) lua.LValue {
 	// check value is struct for Implementation lua.table
 	luaValue, ok := go2luaStruct(L, value)
+
 	if ok {
 		return luaValue
 	}
+	value = parseValueToSupportData(value)
 	switch converted := value.(type) {
 	case bool:
 		return lua.LBool(converted)
+	case big.Int:
+
+		fret, err := strconv.ParseFloat(converted.String(), 64)
+		if err != nil {
+			panic(err)
+		}
+		return lua.LNumber(fret)
+	case uint, uint8, uint16, uint32, uint64, int, int8, int16, int32, int64:
+		fret, err := strconv.ParseFloat(fmt.Sprint(converted), 64)
+		if err != nil {
+			panic(err)
+		}
+		return lua.LNumber(fret)
 	case float64:
 		return lua.LNumber(converted)
 	case string:
@@ -124,8 +142,32 @@ func go2Lua(L *lua.LState, value interface{}) lua.LValue {
 		return tbl
 	case nil:
 		return lua.LNil
+	default:
+		panic("unreachable")
 	}
-	panic("unreachable")
+
+}
+
+func parseValueToSupportData(value interface{}) interface{} {
+
+	switch reflect.TypeOf(value).Kind() {
+	case reflect.Slice, reflect.Array:
+		dataValue := reflect.ValueOf(value) // value
+		var sliceRet []interface{}
+		for i := 0; i < dataValue.Len(); i++ {
+			sliceRet = append(sliceRet, parseValueToSupportData(dataValue.Index(i).Interface()))
+		}
+		return sliceRet
+	case reflect.Struct:
+		return value
+	case reflect.Map:
+		return value
+	case reflect.Ptr:
+		dataValue := reflect.ValueOf(value) // value
+		return parseValueToSupportData(dataValue.Elem().Interface())
+	default:
+		return value
+	}
 }
 
 // go2luaStruct convert struct for Implementation lua.table  to lua.Table
@@ -138,11 +180,6 @@ func go2luaStruct(L *lua.LState, value interface{}) (lua.LValue, bool) {
 	}
 }
 
-//	 function run()
-//	    local i = 0
-//	    print("----coro-----")
-//	    return i
-//    end
 func runLuaRunFunc(state *lua.LState, script string) (lua.LValue, error) {
 	//exec lua run func
 	err := state.DoString(script)
