@@ -92,20 +92,23 @@ func (s *Server) Start() error {
 			c.String(http.StatusNotAcceptable, "need file")
 			return
 		}
+		//clean env
+		s.removeBenchmark(benchmarkPath)
 
-		s.removeBenchmark(f.Filename)
+		dir := filepath.Dir(f.Filename)
 		s.logger.Noticef("upload %v", f.Filename)
 
 		s.fp = s.getFilePath(f.Filename)
-		s.createBenchmark()
+		s.logger.Error(dir)
+		s.createBenchmarkByPath(dir)
 		err = c.SaveUploadedFile(f, s.fp)
 		if err != nil {
-			s.logger.Error("can not save file")
+			s.logger.Error("can not save file:%v", err)
 			c.String(http.StatusNotAcceptable, "can not save file")
 			return
 		}
 		s.logger.Notice("fp", s.fp)
-		err = archiver.Unarchive(s.fp, benchmarkPath)
+		err = archiver.Unarchive(s.fp, dir)
 		if err != nil {
 			if strings.Contains(err.Error(), "file already exists") {
 				s.logger.Errorf("can not open file: %v", err)
@@ -321,7 +324,7 @@ func (s *Server) Start() error {
 		}
 
 		s.nonce = idleNonce
-		//s.removeBenchmark()
+		//s.removeBenchmark(benchmarkPath)
 		viper.Reset()
 		c.String(http.StatusOK, "ok")
 	})
@@ -348,6 +351,10 @@ func (s *Server) getFilePath(name ...string) string {
 }
 
 func (s *Server) createBenchmark() {
+	s.createBenchmarkByPath(benchmarkPath)
+}
+
+func (s *Server) createBenchmarkByPath(benchmarkPath string) {
 	_, err := os.Stat(benchmarkPath)
 	if err != nil && !os.IsExist(err) {
 		_ = os.MkdirAll(benchmarkPath, 0777)
@@ -355,5 +362,8 @@ func (s *Server) createBenchmark() {
 }
 
 func (s *Server) removeBenchmark(fileName string) {
-	_ = os.Remove(fileName)
+	err := os.RemoveAll(fileName)
+	if err != nil {
+		s.logger.Error(err)
+	}
 }

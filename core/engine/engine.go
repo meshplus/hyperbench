@@ -7,7 +7,7 @@ import (
 )
 
 // Callback will be call in engine run.
-type Callback func()
+type Callback func(overtime bool)
 
 // Engine is used to control the rate for send tx.
 type Engine interface {
@@ -37,6 +37,8 @@ type BaseEngineConfig struct {
 	Duration time.Duration `mapstructure:"duration"`
 	// Wg Semaphore of localWorker
 	Wg *sync.WaitGroup
+
+	Cap int64 `mapstructure:"cap"`
 }
 
 type baseEngine struct {
@@ -69,7 +71,6 @@ func (b *baseEngine) adjust() *baseEngine {
 		b.batch = b.Rate / 10
 		b.interval = time.Second / 10
 	}
-
 	return b
 }
 
@@ -86,10 +87,29 @@ func (b *baseEngine) schedule(callback Callback) {
 	}()
 	for ; batchCount < totalBatch; batchCount++ {
 		<-tick.C
-		for i := int64(0); i < b.batch; i++ {
-			b.Wg.Add(1)
-			go callback()
-		}
+		b.Wg.Add(1)
+		go func(currentBatch int) {
+			begin := time.Now().UnixNano()
+			end := begin + int64(b.interval)
+			overtimeTx := 0
+			defer func() {
+				b.Wg.Done()
+			}()
+			overtime := false
+
+			for i := int64(0); i < b.batch; i++ {
+				if !overtime {
+					now := time.Now().UnixNano()
+					if now > end {
+						overtime = true
+					}
+				} else {
+					overtimeTx++
+				}
+				b.Wg.Add(1)
+				callback(overtime)
+			}
+		}(batchCount)
 	}
 }
 

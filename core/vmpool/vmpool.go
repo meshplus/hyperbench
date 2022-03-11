@@ -2,7 +2,6 @@ package vmpool
 
 import (
 	fcom "github.com/meshplus/hyperbench-common/common"
-
 	"path"
 	"strings"
 
@@ -75,14 +74,9 @@ func (p *PoolImpl) Close() {
 }
 
 // Pop gets a vm.VM from Pool concurrent-safely
-// if it's implement in no-block way, it may return nil.
+// if it's implement in block way
 func (p *PoolImpl) Pop() (worker vm.VM) {
-	select {
-	case worker = <-p.ch:
-		return
-	default:
-		return
-	}
+	return <-p.ch
 }
 
 // Push sets a vm.WorkerVM to Pool concurrent-safely.

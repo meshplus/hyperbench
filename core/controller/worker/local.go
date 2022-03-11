@@ -165,28 +165,31 @@ func (l *LocalWorker) runEngine() {
 	close(l.resultCh)
 }
 
-func (l *LocalWorker) asyncJob() {
-	v := l.pool.Pop()
-	defer func() {
-		if v != nil {
-			l.pool.Push(v)
-		}
-		l.wg.Done()
-	}()
-	if v == nil {
+func (l *LocalWorker) asyncJob(overtime bool) {
+	if overtime {
 		atomic.AddInt64(&l.idx.MissIdx, 1)
-		// if worker can not get vm from pool, just shortcut
+		l.wg.Done()
 		return
 	}
+	v := l.pool.Pop()
 
-	res, err := v.Run(fcom.TxContext{
-		Context: l.ctx,
-		TxIndex: l.atomicAddIndex(),
-	})
-	if err != nil {
-		return
-	}
-	l.resultCh <- res
+	go func(v vm.VM) {
+		defer func() {
+			if v != nil {
+				l.pool.Push(v)
+			}
+			l.wg.Done()
+		}()
+		res, err := v.Run(fcom.TxContext{
+			Context: l.ctx,
+			TxIndex: l.atomicAddIndex(),
+		})
+		if err != nil {
+			return
+		}
+		l.resultCh <- res
+	}(v)
+
 }
 
 func (l *LocalWorker) atomicAddIndex() (idx fcom.TxIndex) {
