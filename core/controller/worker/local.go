@@ -37,6 +37,7 @@ type LocalWorkerConfig struct {
 	Cap      int64
 	Rate     int64
 	Duration time.Duration
+	Accounts int64
 }
 
 // NewLocalWorker create LocalWorker.
@@ -58,7 +59,7 @@ func NewLocalWorker(config LocalWorkerConfig) (*LocalWorker, error) {
 	})
 
 	// init vm pool
-	pool, err := vmpool.NewPoolImpl(config.Index, config.Cap)
+	pool, err := vmpool.NewPoolImpl(config.Index, config.Cap, config.Accounts)
 	if err != nil {
 		return nil, err
 	}

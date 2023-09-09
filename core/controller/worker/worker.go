@@ -60,9 +60,10 @@ func NewWorkers() (workers []Worker, err error) {
 			Cap:      viper.GetInt64(fcom.EngineCapPath),
 			Rate:     viper.GetInt64(fcom.EngineRatePath),
 			Duration: viper.GetDuration(fcom.EngineDurationPath),
+			Accounts: viper.GetInt64(fcom.EngineAccountsPath),
 		})
 		if err != nil {
-			return nil, ErrConfig
+			return nil, errors.Wrap(err, ErrConfig.Error())
 		}
 		workers = []Worker{
 			localWorker,

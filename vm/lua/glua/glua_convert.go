@@ -2,11 +2,13 @@ package glua
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
+
 	fcom "github.com/meshplus/hyperbench-common/common"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	"github.com/yuin/gopher-lua"
-	"reflect"
 )
 
 //Go2Lua convert go interface val to lua.LValue value and reutrn
@@ -122,10 +124,12 @@ func go2Lua(L *lua.LState, value interface{}) lua.LValue {
 			tbl.RawSetH(lua.LString(key), go2Lua(L, item))
 		}
 		return tbl
+	case []byte:
+		return lua.LString(converted)
 	case nil:
 		return lua.LNil
 	}
-	panic("unreachable")
+	panic(fmt.Sprintf("lua value: %T", value))
 }
 
 // go2luaStruct convert struct for Implementation lua.table  to lua.Table
