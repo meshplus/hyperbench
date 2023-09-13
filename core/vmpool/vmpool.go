@@ -35,7 +35,7 @@ type PoolImpl struct {
 }
 
 // NewPoolImpl create PoolImpl.
-func NewPoolImpl(workerID int64, cap int64) (*PoolImpl, error) {
+func NewPoolImpl(workerID int64, cap int64, accounts int64) (*PoolImpl, error) {
 	p := &PoolImpl{
 		cap: cap,
 		ch:  make(chan vm.VM, cap),
@@ -48,6 +48,7 @@ func NewPoolImpl(workerID int64, cap int64) (*PoolImpl, error) {
 		Ctx: fcom.VMContext{
 			WorkerIdx: workerID,
 			VMIdx:     0,
+			Accounts:  accounts,
 		},
 	}
 	configBase.Ctx.WorkerIdx = workerID

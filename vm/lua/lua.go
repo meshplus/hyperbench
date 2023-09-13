@@ -2,6 +2,7 @@ package lua
 
 import (
 	"errors"
+
 	"github.com/meshplus/hyperbench/vm/lua/glua"
 
 	base2 "github.com/meshplus/hyperbench-common/base"
@@ -37,8 +38,9 @@ func NewVM(base *base.VMBase) (vm *VM, err error) {
 	vm = &VM{
 		VMBase: base,
 		index: &idex.Index{
-			Worker: base.Ctx.WorkerIdx,
-			VM:     base.Ctx.VMIdx,
+			Worker:   base.Ctx.WorkerIdx,
+			VM:       base.Ctx.VMIdx,
+			Accounts: base.Ctx.Accounts,
 		},
 	}
 
@@ -262,6 +264,8 @@ func (v *VM) setPlugins(table *lua.LTable) (err error) {
 	args, _ := viper.Get(fcom.ClientContractArgsPath).([]interface{})
 	options["vmIdx"] = v.index.VM
 	options["wkIdx"] = v.index.Worker
+	options["accounts"] = v.index.Accounts
+
 	v.client, err = blockchain.NewBlockchain(base2.ClientConfig{
 		ClientType:   clientType,
 		ConfigPath:   clientConfigPath,

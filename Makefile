@@ -62,7 +62,7 @@ assets:
 .PHONY: dep
 ## dep: install the dependencies outside (may need to use proxy to download some packages)
 dep:
-	@go get -u $(GET)
+	@go get $(GET)
 
 help: Makefile
 	@echo " Choose a command run in "$(PROJECTNAME)":"
