@@ -8,10 +8,10 @@ import (
 	fcom "github.com/meshplus/hyperbench-common/common"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 )
 
-//Go2Lua convert go interface val to lua.LValue value and reutrn
+// Go2Lua convert go interface val to lua.LValue value and reutrn
 func Go2Lua(L *lua.LState, val interface{}) lua.LValue {
 	var (
 		jsonBytes []byte
@@ -31,14 +31,17 @@ func Go2Lua(L *lua.LState, val interface{}) lua.LValue {
 // TableLua2GoStruct maps the lua table to the given struct pointer.
 func TableLua2GoStruct(tbl *lua.LTable, st interface{}) error {
 	value, err := Lua2Go(tbl)
+	if err != nil {
+		return err
+	}
 	mp, ok := value.(map[string]interface{})
 	if !ok {
 		return errors.New("arguments #1 must be a table, but got an array")
 	}
+
 	config := &mapstructure.DecoderConfig{
 		WeaklyTypedInput: true,
 		Result:           st,
-		TagName:          "lua",
 		ErrorUnused:      false,
 	}
 	decoder, err := mapstructure.NewDecoder(config)
@@ -142,11 +145,11 @@ func go2luaStruct(L *lua.LState, value interface{}) (lua.LValue, bool) {
 	}
 }
 
-//	 function run()
-//	    local i = 0
-//	    print("----coro-----")
-//	    return i
-//    end
+//		 function run()
+//		    local i = 0
+//		    print("----coro-----")
+//		    return i
+//	   end
 func runLuaRunFunc(state *lua.LState, script string) (lua.LValue, error) {
 	//exec lua run func
 	err := state.DoString(script)

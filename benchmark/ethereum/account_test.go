@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"io"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/crypto"
