@@ -8,12 +8,11 @@ require (
 	github.com/ethereum/go-ethereum v1.12.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gobuffalo/packr/v2 v2.8.3
-	github.com/google/uuid v1.3.0
 	github.com/influxdata/tdigest v0.0.1
 	github.com/json-iterator/go v1.1.12
 	github.com/meshplus/hyperbench-common v0.0.0-20220128060413-2f16193421b0
 	github.com/mholt/archiver/v3 v3.5.0
-	github.com/mitchellh/mapstructure v1.4.3
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/pingcap/failpoint v0.0.0-20191029060244-12f4ac2fd11d
 	github.com/pkg/errors v0.9.1
@@ -30,7 +29,6 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/deckarep/golang-set/v2 v2.1.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -38,7 +36,6 @@ require (
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator/v10 v10.6.1 // indirect
-	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/gobuffalo/logger v1.0.6 // indirect
 	github.com/gobuffalo/packd v1.0.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

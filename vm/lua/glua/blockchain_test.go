@@ -1,10 +1,11 @@
 package glua
 
 import (
+	"testing"
+
 	fcom "github.com/meshplus/hyperbench-common/common"
 	"github.com/stretchr/testify/assert"
 	lua "github.com/yuin/gopher-lua"
-	"testing"
 )
 
 func Test_blockchain(t *testing.T) {
@@ -45,6 +46,8 @@ func Test_blockchain(t *testing.T) {
 		scripts := []string{`
 		function run()
             ret = case.blockchain:Invoke({
+		   caller = "abc",
+		   contract = "xxx",
 		   func="123",
 		   args={"123", "123"}
 		},{aa="aa"},{bb="bb"})
@@ -54,6 +57,8 @@ func Test_blockchain(t *testing.T) {
 			`
 		function run()
             ret = case.blockchain.Invoke({
+			caller = "abc",
+			contract = "xxx",
 		   func="123",
 		   args={"123", "123"}
 		},{aa="aa"},{bb="bb"})
@@ -67,7 +72,7 @@ func Test_blockchain(t *testing.T) {
 			err = TableLua2GoStruct(ret.(*lua.LTable), result)
 			assert.Nil(t, err)
 			assert.Equal(t, result, &fcom.Result{Label: "label", UID: "UUID", BuildTime: 0, SendTime: 0, ConfirmTime: 0, WriteTime: 0, Status: "success", Ret: []interface{}{"demo", "demo"}})
-			assert.Equal(t, client.tempData[Invoke], fcom.Invoke{"123", []interface{}{"123", "123"}})
+			assert.Equal(t, client.tempData[Invoke], fcom.Invoke{"abc", "xxx", "123", []interface{}{"123", "123"}})
 			assert.Equal(t, client.tempData[Option], []fcom.Option{fcom.Option{"aa": "aa"}, fcom.Option{"bb": "bb"}})
 		}
 	})
