@@ -40,6 +40,7 @@ func NewVM(base *base.VMBase) (vm *VM, err error) {
 		index: &idex.Index{
 			Worker:   base.Ctx.WorkerIdx,
 			VM:       base.Ctx.VMIdx,
+			Engine:   base.Ctx.Engine,
 			Accounts: base.Ctx.Accounts,
 		},
 	}
@@ -212,7 +213,6 @@ func (v *VM) BeforeRun() error {
 
 // Run create and send tx to client.
 func (v *VM) Run(ctx fcom.TxContext) (*fcom.Result, error) {
-	v.index.Engine = ctx.EngineIdx
 	v.index.Tx = ctx.TxIdx
 
 	err := v.vm.CallByParam(lua.P{
@@ -264,7 +264,6 @@ func (v *VM) setPlugins(table *lua.LTable) (err error) {
 	args, _ := viper.Get(fcom.ClientContractArgsPath).([]interface{})
 	options["vmIdx"] = v.index.VM
 	options["wkIdx"] = v.index.Worker
-	options["accounts"] = v.index.Accounts
 
 	v.client, err = blockchain.NewBlockchain(base2.ClientConfig{
 		ClientType:   clientType,

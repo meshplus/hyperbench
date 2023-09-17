@@ -109,3 +109,7 @@ func (chain *FakeChain) GetRandomAccountByGroup() string {
 func (chain *FakeChain) GetRandomAccount(account string) string {
 	return ""
 }
+
+func (chain *FakeChain) GetAccount(index uint64) string {
+	return ""
+}

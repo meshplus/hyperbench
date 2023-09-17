@@ -42,16 +42,17 @@ func NewPoolImpl(workerID int64, cap int64, accounts int64) (*PoolImpl, error) {
 	}
 
 	scriptPath := viper.GetString(fcom.ClientScriptPath)
+	engine := viper.GetInt64(fcom.EngineCapPath)
 	t := strings.TrimPrefix(path.Ext(scriptPath), ".")
 	configBase := base.ConfigBase{
 		Path: scriptPath,
 		Ctx: fcom.VMContext{
 			WorkerIdx: workerID,
 			VMIdx:     0,
+			Engine:    engine,
 			Accounts:  accounts,
 		},
 	}
-	configBase.Ctx.WorkerIdx = workerID
 	var i int64
 	fcom.GetLogger("pool").Notice(workerID, cap, scriptPath, t)
 	for i = 0; i < cap; i++ {

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"io"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/crypto"
@@ -31,29 +32,15 @@ var keyFilePaths = []string{
 
 const TotalAccount = 2000000
 
-// func TestAccount(t *testing.T) {
-// 	for _, key := range keys {
-// 		priKey := &keystore.Key{}
-// 		id, err := uuid.NewRandom()
-// 		assert.Nil(t, err)
-// 		priKey.Id = id
-// 		sk, err := crypto.HexToECDSA(strings.TrimPrefix(key, "0x"))
-// 		assert.Nil(t, err)
-// 		priKey.PrivateKey = sk
-// 		priKey.Address = crypto.PubkeyToAddress(sk.PublicKey)
+func TestAccount(t *testing.T) {
+	for _, key := range keys {
+		sk, err := crypto.HexToECDSA(strings.TrimPrefix(key, "0x"))
+		assert.Nil(t, err)
+		addr := crypto.PubkeyToAddress(sk.PublicKey)
 
-// 		t.Logf("key is: %+v", priKey)
-
-// 		encryptKey, err := keystore.EncryptKey(priKey, "", 262144, 1)
-// 		assert.Nil(t, err)
-
-// 		for _, keyFilePath := range keyFilePaths {
-// 			filename := fmt.Sprintf("%s--%s", time.Now().Format("UTC--2006-01-02T15-04-05.999999999Z"), strings.TrimPrefix(priKey.Address.Hex(), "0x"))
-// 			err = os.WriteFile(filepath.Join(keyFilePath, filename), encryptKey, os.ModePerm)
-// 			assert.Nil(t, err)
-// 		}
-// 	}
-// }
+		t.Logf("address is: %s", addr.String())
+	}
+}
 
 func TestGenerateAccount(t *testing.T) {
 	var dstFile *os.File
