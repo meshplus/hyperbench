@@ -1,14 +1,14 @@
 [engine]
-rate = 10
-duration = "10s"
-cap = 1000
-accounts = 1000000
+rate = 100
+duration = "30s"
+cap = 2000
+accounts = 10000
 
 [client]
 script = "benchmark/ethereum/invoke/script.lua"     # 脚本
 type = "eth"                                        # 区块链类型
 contract = "benchmark/ethereum/invoke/contract"     # 合约目录路径
-contract_num = 500                                  # 合约部署数量
+contract_num = 1                                  # 合约部署数量
 config = "benchmark/ethereum/invoke/eth"            # 区块链SDK配置路径
 plugin = "./eth.so"                                 # 插件路径
 args = []                                           # 合约参数路径
@@ -18,7 +18,7 @@ args = []                                           # 合约参数路径
 [recorder.log]
 dump=false
 dir="./logs"
-level="debug"
+level="info"
 
 [recorder.csv]
 dir="./csv"
