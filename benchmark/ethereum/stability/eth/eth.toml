@@ -1,0 +1,3 @@
+[rpc]
+node = "ws://localhost"
+port = "9991"

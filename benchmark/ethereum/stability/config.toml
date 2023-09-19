@@ -1,0 +1,30 @@
+[engine]
+rate = 2
+duration = "10s"
+cap = 2
+accounts = 8
+
+# uniswap 稳定性测试配置
+[client]
+script = "benchmark/ethereum/invoke/script.lua"
+type = "eth"
+contract = "benchmark/ethereum/invoke/contract"
+contract_num = 1
+config = "benchmark/ethereum/invoke/eth"
+plugin = "./eth.so"
+args = []
+
+[client.options] # 客户端选项
+
+[recorder.log]
+dump=false
+dir="./logs"
+level="debug"
+
+[recorder.csv]
+dir="./csv"
+
+
+
+
+
