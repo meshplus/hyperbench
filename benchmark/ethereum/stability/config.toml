@@ -1,17 +1,17 @@
 [engine]
-rate = 2
-duration = "10s"
-cap = 2
-accounts = 8
+rate = 2                            # 速率
+duration = "30s"                    # 持续时间
+cap = 2                             # 客户端虚拟机数量
+accounts = 10                       #
 
 # uniswap 稳定性测试配置
 [client]
-script = "benchmark/ethereum/invoke/script.lua"
-type = "eth"
-contract = "benchmark/ethereum/invoke/contract"
+script = "benchmark/ethereum/stability/script.lua"     # 脚本
+type = "eth"                                        # 区块链类型
+contract = "benchmark/ethereum/stability/contract"     # 合约目录
 contract_num = 1
-config = "benchmark/ethereum/invoke/eth"
-plugin = "./eth.so"
+config = "benchmark/ethereum/stability/eth"            # 区块链SDK配置路径
+plugin = "./eth.so"                                 # 插件路径
 args = []
 
 [client.options] # 客户端选项
