@@ -21,6 +21,7 @@ func newBlockchain(L *lua.LState, client fcom.Blockchain) lua.LValue {
 	clientTable.RawSetString("GetRandomAccountByGroup", getRandomAccountByGroupLuaFunction(L, client))
 	clientTable.RawSetString("GetRandomAccount", getRandomAccountLuaFunction(L, client))
 	clientTable.RawSetString("GetAccount", getAccountLuaFunction(L, client))
+	clientTable.RawSetString("GetContractAddrByName", getContractAddrByNameLuaFunction(L, client))
 	//clientTable.RawSetString("Statistic",nil)
 	return clientTable
 }
@@ -222,6 +223,19 @@ func deployContractLuaFunction(L *lua.LState, client fcom.Blockchain) *lua.LFunc
 			return 1
 		}
 		state.Push(lua.LString(""))
+		return 1
+	})
+}
+
+func getContractAddrByNameLuaFunction(L *lua.LState, client fcom.Blockchain) *lua.LFunction {
+	return L.NewFunction(func(state *lua.LState) int {
+		firstArgIndex := 1
+		if checkBlockChainByIdx(state, 1) {
+			firstArgIndex++
+		}
+		text := state.CheckString(firstArgIndex)
+		addr := client.GetRandomAccount(text)
+		state.Push(lua.LString(addr))
 		return 1
 	})
 }

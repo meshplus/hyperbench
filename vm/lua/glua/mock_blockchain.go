@@ -113,3 +113,7 @@ func (chain *FakeChain) GetRandomAccount(account string) string {
 func (chain *FakeChain) GetAccount(index uint64) string {
 	return ""
 }
+
+func (chain *FakeChain) GetContractAddrByName(name string) string {
+	return ""
+}

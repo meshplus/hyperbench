@@ -4,12 +4,10 @@ function case:BeforeRun()
     fromAddr = self.blockchain:GetRandomAccountByGroup()
     self.amountToken = 1000000000000000000000
     amount = self.amountToken
-    local routerAddr = self.blockchain:Invoke({
-        caller = fromAddr,
-        contract = "UniswapV2Router02",
-        func = "getThisContractAddress",
-        args ={},
-    })
+    --print(type(self))
+    --print(type(self.blockchain))
+    --print(type(self.blockchain.GetContractAddrByName))
+    local routerAddr = self.blockchain:GetContractAddrByName("UniswapV2Router02")
 
     local tokens = {"Token1", "Token2", "Token3"}
     local multipliers = {1, 10, 100}
@@ -32,7 +30,7 @@ function case:BeforeRun()
         })
     end
 
-    deadline = self.Time.now.toSeconds + 1000
+    deadline = os.time() + 1000
     local routerAddr = self.blockchain:GetContractAddrByName("UniswapV2Router02")
     local token1 = self.blockchain:GetContractAddrByName("Token1")
     local token2 = self.blockchain:GetContractAddrByName("Token2")
@@ -85,6 +83,8 @@ function case:BeforeRun()
             deadline,
         },
     })
+
+    return {type = "default addLiquidity", result = token1token3Liquid}
 end
 
 function case:Run()
@@ -127,7 +127,7 @@ function case:Run()
         })
 
         -- 添加流动性
-        deadline = self.Time.now.toSeconds + 1000
+        deadline = os.time() + 1000
         local addLiquidity = self.blockchain:Invoke({
             caller = addr,
             contract = "UniswapV2Router02",
@@ -143,6 +143,8 @@ function case:Run()
                 deadline,
             },
         })
+        --print(addLiquidity)
+        return {type = "addLiquidity", result = addLiquidity}
 
     else
         -- mint
@@ -181,5 +183,9 @@ function case:Run()
                 deadline,
             },
         })
+        --print(swapResult)
+        return {type = "swapResult", result = swapResult}
+
     end
 end
+return case

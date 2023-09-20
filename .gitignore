@@ -10,6 +10,7 @@ detail.js
 benchmark/ethereum/compare/
 benchmark/ethereum/invoke/eth/keystore
 benchmark/ethereum/transfer/eth/keystore
+benchmark/ethereum/stability/eth/keystore
 benchmark/fabric/compare/
 assets
 *.so
