@@ -1,8 +1,8 @@
 [engine]
-rate = 100
+rate = 1000
 duration = "30s"
-cap = 2000
-accounts = 10000
+cap = 1000
+accounts = 1000
 
 [client]
 script = "benchmark/ethereum/erc20/script.lua"     # 脚本
@@ -18,7 +18,7 @@ args = []                                           # 合约参数路径
 [recorder.log]
 dump=false
 dir="./logs"
-level="info"
+level="debug"
 
 [recorder.csv]
 dir="./csv"

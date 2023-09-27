@@ -66,6 +66,9 @@ function case:BeforeRun()
 
     -- wait token confirm
     --self.blockchain:Confirm(result)
+
+    -- set contract address
+    --self.blockchain:SetContext('{"contract_name": "ERC20", "contract_addr": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E"}')
 end
 
 function case:Run()
