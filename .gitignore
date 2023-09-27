@@ -9,6 +9,7 @@ detail.js
 *.[oa]
 benchmark/ethereum/compare/
 benchmark/ethereum/erc20/eth/keystore
+benchmark/ethereum/invoke/eth/keystore
 benchmark/ethereum/transfer/eth/keystore
 benchmark/ethereum/uniswap/eth/keystore
 benchmark/ethereum/makerdao/eth/keystore
@@ -32,4 +33,3 @@ lua/testImpl.lua
 dist
 
 node_modules
-

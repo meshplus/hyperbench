@@ -1,0 +1,8 @@
+[rpc]
+node = "http://172.16.13.131"
+port = "8881"
+
+
+#[rpc]
+#node = "https://rpc1.aries.axiomesh.io"
+#port = ""

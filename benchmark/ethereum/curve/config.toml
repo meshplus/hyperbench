@@ -1,0 +1,29 @@
+[engine]
+rate = 50
+duration = "30s"
+cap = 10
+accounts = 1
+
+[client]
+script = "benchmark/ethereum/curve/script.lua"     # 脚本
+type = "eth"                                        # 区块链类型
+contract = "benchmark/ethereum/curve/contract"     # 合约目录路径
+contract_num = 0                                  # 合约部署数量
+config = "benchmark/ethereum/curve/eth"            # 区块链SDK配置路径
+plugin = "./eth.so"                                 # 插件路径
+args = []                                           # 合约参数路径
+
+[client.options] # 客户端选项
+
+[recorder.log]
+dump=false
+dir="./logs"
+level="info"
+
+[recorder.csv]
+dir="./csv"
+
+
+
+
+
