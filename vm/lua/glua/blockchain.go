@@ -234,7 +234,7 @@ func getContractAddrByNameLuaFunction(L *lua.LState, client fcom.Blockchain) *lu
 			firstArgIndex++
 		}
 		text := state.CheckString(firstArgIndex)
-		addr := client.GetRandomAccount(text)
+		addr := client.GetContractAddrByName(text)
 		state.Push(lua.LString(addr))
 		return 1
 	})

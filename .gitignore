@@ -8,11 +8,9 @@ result.html
 detail.js
 *.[oa]
 benchmark/ethereum/compare/
-benchmark/ethereum/invoke/eth/keystore
+benchmark/ethereum/erc20/eth/keystore
 benchmark/ethereum/transfer/eth/keystore
-benchmark/ethereum/stability-transfer/eth/keystore
-benchmark/ethereum/stability-erc20/eth/keystore
-benchmark/ethereum/stability-uniswap/eth/keystore
+benchmark/ethereum/uniswap/eth/keystore
 benchmark/ethereum/keys
 benchmark/fabric/compare/
 assets
