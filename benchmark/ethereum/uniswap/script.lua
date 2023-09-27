@@ -4,10 +4,8 @@ function case:BeforeRun()
     fromAddr = self.blockchain:GetRandomAccountByGroup()
     self.amountToken = 1000000000000000000000
     amount = self.amountToken
-    --print(type(self))
-    --print(type(self.blockchain))
-    --print(type(self.blockchain.GetContractAddrByName))
     local routerAddr = self.blockchain:GetContractAddrByName("UniswapV2Router02")
+    --print(routerAddr)
 
     local tokens = {"Token1", "Token2", "Token3"}
     local multipliers = {1, 10, 100}
@@ -31,7 +29,6 @@ function case:BeforeRun()
     end
 
     deadline = os.time() + 1000
-    local routerAddr = self.blockchain:GetContractAddrByName("UniswapV2Router02")
     local token1 = self.blockchain:GetContractAddrByName("Token1")
     local token2 = self.blockchain:GetContractAddrByName("Token2")
     local token3 = self.blockchain:GetContractAddrByName("Token3")
@@ -143,7 +140,6 @@ function case:Run()
                 deadline,
             },
         })
-        --print(addLiquidity)
         return {type = "addLiquidity", result = addLiquidity}
 
     else
@@ -183,7 +179,6 @@ function case:Run()
                 deadline,
             },
         })
-        --print(swapResult)
         return {type = "swapResult", result = swapResult}
 
     end

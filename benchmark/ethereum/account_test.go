@@ -78,16 +78,13 @@ func TestGenerateAccount(t *testing.T) {
 	}
 }
 
-// 将百万账户三等分
 func TestSplitAndSaveKeys(t *testing.T) {
-	// 打开现有的 keys 文件
 	srcFile, err := os.Open("./keys")
 	if err != nil {
 		panic(err)
 	}
 	defer srcFile.Close()
 
-	// 使用 scanner 逐行读取文件
 	var keys []string
 	scanner := bufio.NewScanner(srcFile)
 	for scanner.Scan() {
@@ -99,7 +96,6 @@ func TestSplitAndSaveKeys(t *testing.T) {
 		panic(err)
 	}
 
-	// 分割 keys 切片
 	totalKeys := len(keys)
 	partSize := totalKeys / 3
 
@@ -107,13 +103,11 @@ func TestSplitAndSaveKeys(t *testing.T) {
 	part2 := keys[partSize : 2*partSize]
 	part3 := keys[2*partSize:]
 
-	// 定义要保存到的三个文件路径
 	paths := []string{
 		"stability-erc20/eth/keystore/keys",
 		"stability-transfer/eth/keystore/keys",
 		"stability-uniswap/eth/keystore/keys"}
 
-	// 分别保存到三个文件中
 	for i, part := range [][]string{part1, part2, part3} {
 		file, err := os.Create(paths[i])
 		if err != nil {
