@@ -1,0 +1,3 @@
+[rpc]
+node = "https://rpc3.aries.axiomesh.io"
+port = ""
