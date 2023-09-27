@@ -6,11 +6,11 @@ accounts = 333333                   #
 
 # uniswap 稳定性测试配置
 [client]
-script = "benchmark/ethereum/stability-uniswap/script.lua"     # 脚本
+script = "benchmark/ethereum/uniswap/script.lua"     # 脚本
 type = "eth"                                           # 区块链类型
-contract = "benchmark/ethereum/stability-uniswap/contract"     # 合约目录
+contract = "benchmark/ethereum/uniswap/contract"     # 合约目录
 contract_num = 1
-config = "benchmark/ethereum/stability-uniswap/eth"            # 区块链SDK配置路径
+config = "benchmark/ethereum/uniswap/eth"            # 区块链SDK配置路径
 plugin = "./eth.so"                                    # 插件路径
 args = []
 

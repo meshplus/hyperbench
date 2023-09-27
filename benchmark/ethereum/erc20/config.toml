@@ -5,11 +5,11 @@ cap = 2000
 accounts = 10000
 
 [client]
-script = "benchmark/ethereum/invoke/script.lua"     # 脚本
+script = "benchmark/ethereum/erc20/script.lua"     # 脚本
 type = "eth"                                        # 区块链类型
-contract = "benchmark/ethereum/invoke/contract"     # 合约目录路径
+contract = "benchmark/ethereum/erc20/contract"     # 合约目录路径
 contract_num = 1                                  # 合约部署数量
-config = "benchmark/ethereum/invoke/eth"            # 区块链SDK配置路径
+config = "benchmark/ethereum/erc20/eth"            # 区块链SDK配置路径
 plugin = "./eth.so"                                 # 插件路径
 args = []                                           # 合约参数路径
 
