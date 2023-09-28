@@ -1,21 +1,17 @@
-//Package cmd use cobra provide cmd function
+// Package cmd use cobra provide cmd function
 package cmd
 
 import (
 	"fmt"
 	"time"
 
+	fcom "github.com/meshplus/hyperbench-common/common"
+	"github.com/meshplus/hyperbench/core/controller"
 	"github.com/meshplus/hyperbench/core/network/server"
-
 	"github.com/op/go-logging"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 	"github.com/spf13/viper"
-
-	fcom "github.com/meshplus/hyperbench-common/common"
-
-	"github.com/meshplus/hyperbench/core/controller"
-	"github.com/meshplus/hyperbench/filesystem"
 )
 
 var (
@@ -26,7 +22,7 @@ var (
 	date     string
 )
 
-//InitCmd init cobra command
+// InitCmd init cobra command
 func InitCmd(debug func()) error {
 	logger = fcom.GetLogger("cmd")
 	debugF = debug
@@ -63,12 +59,6 @@ func addRun() {
 
 	create.Run = func(cmd *cobra.Command, args []string) {
 		// todo: initialize a test plan
-	}
-
-	initDir.Run = func(cmd *cobra.Command, args []string) {
-		if err := filesystem.Unpack(""); err != nil {
-			panic("init stress test dir error")
-		}
 	}
 
 	version.Run = func(cmd *cobra.Command, args []string) {
