@@ -1,6 +1,8 @@
 package glua
 
 import (
+	"fmt"
+
 	fcom "github.com/meshplus/hyperbench-common/common"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -16,6 +18,10 @@ func newBlockchain(L *lua.LState, client fcom.Blockchain) lua.LValue {
 	clientTable.RawSetString("GetContext", getContextLuaFunction(L, client))
 	clientTable.RawSetString("SetContext", setContextLuaFunction(L, client))
 	clientTable.RawSetString("ResetContext", resetContextLuaFunction(L, client))
+	clientTable.RawSetString("GetRandomAccountByGroup", getRandomAccountByGroupLuaFunction(L, client))
+	clientTable.RawSetString("GetRandomAccount", getRandomAccountLuaFunction(L, client))
+	clientTable.RawSetString("GetAccount", getAccountLuaFunction(L, client))
+	clientTable.RawSetString("GetContractAddrByName", getContractAddrByNameLuaFunction(L, client))
 	//clientTable.RawSetString("Statistic",nil)
 	return clientTable
 }
@@ -62,6 +68,42 @@ func resetContextLuaFunction(L *lua.LState, client fcom.Blockchain) lua.LValue {
 	})
 }
 
+func getRandomAccountByGroupLuaFunction(L *lua.LState, client fcom.Blockchain) lua.LValue {
+	return L.NewFunction(func(state *lua.LState) int {
+		account := client.GetRandomAccountByGroup()
+		state.Push(lua.LString(account))
+		return 1
+	})
+}
+
+func getRandomAccountLuaFunction(L *lua.LState, client fcom.Blockchain) lua.LValue {
+	return L.NewFunction(func(state *lua.LState) int {
+		firstArgIndex := 1
+		// check first arg is fcom.Blockchain
+		if checkBlockChainByIdx(state, 1) {
+			firstArgIndex++
+		}
+		text := state.CheckString(firstArgIndex)
+		account := client.GetRandomAccount(text)
+		state.Push(lua.LString(account))
+		return 1
+	})
+}
+
+func getAccountLuaFunction(L *lua.LState, client fcom.Blockchain) lua.LValue {
+	return L.NewFunction(func(state *lua.LState) int {
+		firstArgIndex := 1
+		// check first arg is fcom.Blockchain
+		if checkBlockChainByIdx(state, 1) {
+			firstArgIndex++
+		}
+		index := state.CheckInt64(firstArgIndex)
+		account := client.GetAccount(uint64(index))
+		state.Push(lua.LString(account))
+		return 1
+	})
+}
+
 func optionLuaFunction(L *lua.LState, client fcom.Blockchain) lua.LValue {
 	return L.NewFunction(func(state *lua.LState) int {
 		var map1 fcom.Option
@@ -87,66 +129,74 @@ func optionLuaFunction(L *lua.LState, client fcom.Blockchain) lua.LValue {
 }
 
 func invokeLuaFunction(L *lua.LState, client fcom.Blockchain) *lua.LFunction {
-	var invoke fcom.Invoke
-	return blockchainLuaFunction(L, client, invoke, func(b fcom.Blockchain, b2 interface{}, option ...fcom.Option) interface{} {
-		return b.Invoke(b2.(fcom.Invoke), option...)
+	return L.NewFunction(func(state *lua.LState) int {
+		var invoke fcom.Invoke
+		res := blockchainLuaFunction(L, client, invoke, func(b fcom.Blockchain, b2 interface{}, option ...fcom.Option) interface{} {
+			return b.Invoke(b2.(fcom.Invoke), option...)
+		})
+		return res
 	})
 }
 
 func transferLuaFunction(L *lua.LState, client fcom.Blockchain) *lua.LFunction {
-	var transfer fcom.Transfer
-	return blockchainLuaFunction(L, client, transfer, func(b fcom.Blockchain, b2 interface{}, option ...fcom.Option) interface{} {
-		return b.Transfer(b2.(fcom.Transfer), option...)
+	return L.NewFunction(func(state *lua.LState) int {
+		var transfer fcom.Transfer
+		res := blockchainLuaFunction(L, client, transfer, func(b fcom.Blockchain, b2 interface{}, option ...fcom.Option) interface{} {
+			return b.Transfer(b2.(fcom.Transfer), option...)
+		})
+		return res
 	})
 }
 
 func queryLuaFunction(L *lua.LState, client fcom.Blockchain) *lua.LFunction {
-	var query fcom.Query
-	return blockchainLuaFunction(L, client, query, func(b fcom.Blockchain, b2 interface{}, option ...fcom.Option) interface{} {
-		return b.Query(b2.(fcom.Query), option...)
+	return L.NewFunction(func(state *lua.LState) int {
+		var query fcom.Query
+		res := blockchainLuaFunction(L, client, query, func(b fcom.Blockchain, b2 interface{}, option ...fcom.Option) interface{} {
+			return b.Query(b2.(fcom.Query), option...)
+		})
+		return res
 	})
 }
 
 func confirmLuaFunction(L *lua.LState, client fcom.Blockchain) *lua.LFunction {
-	var confirm *fcom.Result
-	return blockchainLuaFunction(L, client, confirm, func(b fcom.Blockchain, b2 interface{}, option ...fcom.Option) interface{} {
-		return b.Confirm(b2.(*fcom.Result), option...)
+	return L.NewFunction(func(state *lua.LState) int {
+		var confirm *fcom.Result
+		res := blockchainLuaFunction(L, client, confirm, func(b fcom.Blockchain, b2 interface{}, option ...fcom.Option) interface{} {
+			return b.Confirm(b2.(*fcom.Result), option...)
+		})
+		return res
 	})
 }
 
-func blockchainLuaFunction(L *lua.LState, cli fcom.Blockchain, arg1Type interface{}, fn func(fcom.Blockchain, interface{}, ...fcom.Option) interface{}) *lua.LFunction {
-	return L.NewFunction(func(state *lua.LState) int {
-		// case.blockchain:Invoke() --> first arg is fcom.Blockchain
-		// case.blockchain.Invoke  ----> first arg is normal
-		firstArgIndex := 1
-		// check first arg is fcom.Blockchain
-		if checkBlockChainByIdx(state, 1) {
-			firstArgIndex++
-		}
-		invokeTable := state.CheckTable(firstArgIndex)
-		err := TableLua2GoStruct(invokeTable, &arg1Type)
-		if err != nil {
-			state.ArgError(1, "interface. expected")
-		}
-		if state.GetTop() == 1+firstArgIndex {
-			ret := fn(cli, arg1Type)
-			state.Push(go2Lua(state, ret))
-			return 1
-		}
-		var opts []fcom.Option
-		for i := 1 + firstArgIndex; i <= state.GetTop(); i++ {
-			table := state.CheckTable(i)
-			var map1 fcom.Option
-			err := TableLua2GoStruct(table, &map1)
-			if err != nil {
-				state.ArgError(1, "common.Option expected")
-			}
-			opts = append(opts, map1)
-		}
-		ret := fn(cli, arg1Type, opts...)
+func blockchainLuaFunction(state *lua.LState, cli fcom.Blockchain, arg1Type interface{}, fn func(fcom.Blockchain, interface{}, ...fcom.Option) interface{}) int {
+	firstArgIndex := 1
+	// check first arg is fcom.Blockchain
+	if checkBlockChainByIdx(state, 1) {
+		firstArgIndex++
+	}
+	invokeTable := state.CheckTable(firstArgIndex)
+	err := TableLua2GoStruct(invokeTable, &arg1Type)
+	if err != nil {
+		state.ArgError(1, fmt.Sprintf("interface. expected, %s", err))
+	}
+	if state.GetTop() == 1+firstArgIndex {
+		ret := fn(cli, arg1Type)
 		state.Push(go2Lua(state, ret))
 		return 1
-	})
+	}
+	var opts []fcom.Option
+	for i := 1 + firstArgIndex; i <= state.GetTop(); i++ {
+		table := state.CheckTable(i)
+		var map1 fcom.Option
+		err := TableLua2GoStruct(table, &map1)
+		if err != nil {
+			state.ArgError(1, "common.Option expected")
+		}
+		opts = append(opts, map1)
+	}
+	ret := fn(cli, arg1Type, opts...)
+	state.Push(go2Lua(state, ret))
+	return 1
 }
 
 func checkBlockChainByIdx(state *lua.LState, idx int) bool {
@@ -173,6 +223,19 @@ func deployContractLuaFunction(L *lua.LState, client fcom.Blockchain) *lua.LFunc
 			return 1
 		}
 		state.Push(lua.LString(""))
+		return 1
+	})
+}
+
+func getContractAddrByNameLuaFunction(L *lua.LState, client fcom.Blockchain) *lua.LFunction {
+	return L.NewFunction(func(state *lua.LState) int {
+		firstArgIndex := 1
+		if checkBlockChainByIdx(state, 1) {
+			firstArgIndex++
+		}
+		text := state.CheckString(firstArgIndex)
+		addr := client.GetContractAddrByName(text)
+		state.Push(lua.LString(addr))
 		return 1
 	})
 }

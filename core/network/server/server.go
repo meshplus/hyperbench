@@ -164,6 +164,7 @@ func (s *Server) Start() error {
 			Cap:      int64(viper.GetInt(fcom.EngineCapPath) / l),
 			Rate:     int64(viper.GetInt(fcom.EngineRatePath) / l),
 			Duration: viper.GetDuration(fcom.EngineDurationPath),
+			Accounts: int64(viper.GetInt(fcom.EngineAccountsPath) / l),
 		})
 
 		if err != nil {

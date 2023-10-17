@@ -1,10 +1,11 @@
 package glua
 
 import (
+	"testing"
+
 	"github.com/meshplus/hyperbench/plugins/index"
 	"github.com/stretchr/testify/assert"
 	lua "github.com/yuin/gopher-lua"
-	"testing"
 )
 
 func Test_index(t *testing.T) {
@@ -12,7 +13,7 @@ func Test_index(t *testing.T) {
 	defer L.Close()
 	mt := L.NewTypeMetatable("case")
 	L.SetGlobal("case", mt)
-	passIdx := &index.Index{1, 1, 1, 1}
+	passIdx := &index.Index{1, 1, 1, 1, 1}
 
 	cLua := newIdexIndex(L, passIdx)
 	L.SetField(mt, "index", cLua)

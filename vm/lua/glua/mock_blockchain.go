@@ -101,3 +101,19 @@ func (chain *FakeChain) Statistic(statistic fcom.Statistic) (*fcom.RemoteStatist
 func (chain *FakeChain) LogStatus() (int64, error) {
 	return 0, nil
 }
+
+func (chain *FakeChain) GetRandomAccountByGroup() string {
+	return ""
+}
+
+func (chain *FakeChain) GetRandomAccount(account string) string {
+	return ""
+}
+
+func (chain *FakeChain) GetAccount(index uint64) string {
+	return ""
+}
+
+func (chain *FakeChain) GetContractAddrByName(name string) string {
+	return ""
+}

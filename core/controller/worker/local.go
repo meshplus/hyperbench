@@ -7,6 +7,7 @@ import (
 	"time"
 
 	fcom "github.com/meshplus/hyperbench-common/common"
+	"github.com/op/go-logging"
 
 	"github.com/meshplus/hyperbench/core/collector"
 	"github.com/meshplus/hyperbench/core/engine"
@@ -17,6 +18,7 @@ import (
 
 // LocalWorker is the local Worker implement
 type LocalWorker struct {
+	logger    *logging.Logger
 	conf      LocalWorkerConfig
 	eg        engine.Engine
 	pool      vmpool.Pool
@@ -37,6 +39,7 @@ type LocalWorkerConfig struct {
 	Cap      int64
 	Rate     int64
 	Duration time.Duration
+	Accounts int64
 }
 
 // NewLocalWorker create LocalWorker.
@@ -44,6 +47,7 @@ func NewLocalWorker(config LocalWorkerConfig) (*LocalWorker, error) {
 	blockchain.InitPlugin()
 
 	localWorker := LocalWorker{
+		logger:    fcom.GetLogger("worker"),
 		collector: collector.NewTDigestSummaryCollector(),
 		resultCh:  make(chan *fcom.Result, 1024),
 		done:      make(chan struct{}),
@@ -58,14 +62,13 @@ func NewLocalWorker(config LocalWorkerConfig) (*LocalWorker, error) {
 	})
 
 	// init vm pool
-	pool, err := vmpool.NewPoolImpl(config.Index, config.Cap)
+	pool, err := vmpool.NewPoolImpl(config.Index, config.Cap, config.Accounts)
 	if err != nil {
 		return nil, err
 	}
 
 	// init index
 	idx := fcom.TxIndex{
-		EngineIdx: config.Index,
 		TxIdx:     -1,
 		MissIdx:   0,
 	}
@@ -96,12 +99,19 @@ func (l *LocalWorker) SetContext(bs []byte) (err error) {
 
 // BeforeRun call user hook
 func (l *LocalWorker) BeforeRun() (err error) {
+	wg := &sync.WaitGroup{}
 	l.pool.Walk(func(v vm.VM) bool {
-		if err = v.BeforeRun(); err != nil {
-			return true
-		}
+		wg.Add(1)
+		go func() {
+			if err = v.BeforeRun(); err != nil {
+				l.logger.Errorf("Before run error: %s", err)
+			}
+			wg.Done()
+		}()
+
 		return false
 	})
+	wg.Wait()
 	return err
 }
 
@@ -117,12 +127,19 @@ func (l *LocalWorker) Do() error {
 
 // AfterRun call user hook
 func (l *LocalWorker) AfterRun() (err error) {
+	wg := &sync.WaitGroup{}
 	l.pool.Walk(func(v vm.VM) bool {
-		if err = v.AfterRun(); err != nil {
-			return true
-		}
+		wg.Add(1)
+		go func() {
+			if err = v.AfterRun(); err != nil {
+				l.logger.Errorf("After run error: %s", err)
+			}
+			wg.Done()
+		}()
+
 		return false
 	})
+	wg.Wait()
 	return err
 }
 
@@ -190,7 +207,6 @@ func (l *LocalWorker) asyncJob() {
 }
 
 func (l *LocalWorker) atomicAddIndex() (idx fcom.TxIndex) {
-	idx.EngineIdx = atomic.LoadInt64(&l.idx.EngineIdx)
 	idx.TxIdx = atomic.AddInt64(&l.idx.TxIdx, 1)
 	return
 }

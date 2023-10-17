@@ -1,7 +1,8 @@
 [engine]
-rate = 20
-duration = "20s"
-cap = 3
+rate = 10
+duration = "10s"
+cap = 20
+accounts = 1000
 
 [client]
 script = "benchmark/ethereum/transfer/script.lua"   # 脚本
@@ -14,7 +15,7 @@ plugin = "./eth.so"                                 # 插件路径
 [recorder.log]
 dump=false
 dir="./logs"
-level="debug"
+level="info"
 
 [recorder.csv]
 dir="./csv"
