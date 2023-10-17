@@ -4,11 +4,11 @@ local case = testcase.new()
 -- Aries
 function case:BeforeRun()
    -- set contract address
-   self.blockchain:SetContext('{"contract_name": "UNI", "contract_addr": "0x9dfDf098804aEAD808aA5896EAcd0475CCE18409"}')
-   self.blockchain:SetContext('{"contract_name": "USDC", "contract_addr": "0x9cB42e0D49fffA7381a0509b0c8909D125c09912"}')
-   self.blockchain:SetContext('{"contract_name": "CUNI", "contract_addr": "0x8E5ea1F851AA25f16C77161ba682480c959dC76D"}')
-   self.blockchain:SetContext('{"contract_name": "CUSDC", "contract_addr": "0x8f9fe2A462e1a8024541Ae5829821Fd72798cB96"}')
-   self.blockchain:SetContext('{"contract_name": "Comptroller", "contract_addr": "0xC7B977C41aE7B25997263b9DF21C17694E6D8429"}')
+   self.blockchain:SetContext('{"contract_name": "UNI", "contract_addr": "0x58c88Ae044A5471CC90472bCe34b67a7432Df716"}')
+   self.blockchain:SetContext('{"contract_name": "USDC", "contract_addr": "0x6d1448CeC252968f2E2526f144C7eedf1cb141e5"}')
+   self.blockchain:SetContext('{"contract_name": "CUNI", "contract_addr": "0x12b7358f0B1e2874C6114ecFa3Dc73a3a731272F"}')
+   self.blockchain:SetContext('{"contract_name": "CUSDC", "contract_addr": "0xb0aCfACcE6946eEfE99A774bfb14d44bd276dAca"}')
+   self.blockchain:SetContext('{"contract_name": "Comptroller", "contract_addr": "0xA853A791361D00b029baf1efB856578D1C681813"}')
 
    
    local fromAddr = self.blockchain:GetRandomAccountByGroup()
@@ -79,12 +79,26 @@ end
 
 function case:Run()
    local fromAddr = self.blockchain:GetRandomAccountByGroup()
-   print("from addr:" .. fromAddr)
    local cUNIAddr = self.blockchain:GetContractAddrByName("CUNI")
    local cUSDCAddr = self.blockchain:GetContractAddrByName("CUSDC")
    local ctokenArray = {UNIAddr,cUSDCAddr}
    local fromAddr = self.blockchain:GetRandomAccountByGroup()
    local uniMint=10000000000000000000
+   local mintNum=10000000000000000
+
+   self.blockchain:Invoke({
+      caller = fromAddr,
+      contract = "Comptroller",
+      func = "enterOneMarkets",
+      args = {cUSDCAddr},
+   })
+
+   self.blockchain:Invoke({
+      caller = fromAddr,
+      contract = "Comptroller",
+      func = "enterOneMarkets",
+      args = {cUNIAddr},
+   })
 
    self.blockchain:Invoke({
       caller = fromAddr,
@@ -98,20 +112,20 @@ function case:Run()
       caller = fromAddr,
       contract = "UNI",
       func = "approve",
-      args = {cUNIAddr, uniMint},
+      args = {cUNIAddr, mintNum},
    })
 
    self.blockchain:Invoke({
       caller = fromAddr,
       contract = "CUNI",
       func = "mint",
-      args = {uniMint},
+      args = {mintNum},
    })
 
    borrowNum=self.toolkit.RandInt(100000, 1000000)
    self.blockchain:Invoke({
       caller = fromAddr,
-      contract = "CUSDC",
+      contract = "CUNI",
       func = "borrow",
       args = {borrowNum},
    })
@@ -119,14 +133,14 @@ function case:Run()
 
    self.blockchain:Invoke({
       caller = fromAddr,
-      contract = "USDC",
+      contract = "UNI",
       func = "approve",
-      args = {cUSDCAddr,borrowNum},
+      args = {cUNIAddr,borrowNum},
    })
 
    self.blockchain:Invoke({
       caller = fromAddr,
-      contract = "CUSDC",
+      contract = "CUNI",
       func = "repayBorrow",
       args = {borrowNum},
    })
