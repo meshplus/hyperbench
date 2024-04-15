@@ -50,9 +50,19 @@ func TestAccount(t *testing.T) {
 	}
 }
 
-func TestGenerate2MillionAccount(t *testing.T) {
+// TestGenerateAccountAndAddr will generate a specified number of private keys and addresses, and store them in the appropriate location
+// keys will be in keystore/keys
+// and addresses will be in current location, which can be used for importing accounts by axiom-ledger cmd
+func TestGenerateAccountAndAddr(t *testing.T) {
 	for _, keyFilePath := range keyGeneratePaths {
-		dstFile, err := os.OpenFile(keyFilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		// keyfile like `transfer/eth/keystore/keys`
+		keyFile, err := os.OpenFile(keyFilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		assert.Nil(t, err)
+
+		// addrFile like `transfer-address` in current location
+		pathParts := strings.Split(keyFilePath, "/")
+		addrFileName := pathParts[0] + "-address"
+		addrFile, err := os.OpenFile(addrFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		assert.Nil(t, err)
 
 		var sk *ecdsa.PrivateKey
@@ -60,16 +70,22 @@ func TestGenerate2MillionAccount(t *testing.T) {
 			sk, err = crypto.GenerateKey()
 			assert.Nil(t, err)
 
+			// store private key
 			privKey := hex.EncodeToString(crypto.FromECDSA(sk))
-
-			_, err = dstFile.Write([]byte(privKey))
+			_, err = keyFile.Write([]byte(privKey + "\n"))
 			assert.Nil(t, err)
-			_, err = dstFile.Write([]byte("\n"))
+
+			// store address
+			addr := crypto.PubkeyToAddress(sk.PublicKey).Hex()
+			_, err = addrFile.Write([]byte(addr + "\n"))
 			assert.Nil(t, err)
 		}
-		err = dstFile.Close()
-		assert.Nil(t, err)
-		t.Logf("finish generate %s", keyFilePath)
+
+		assert.Nil(t, keyFile.Close())
+		t.Logf("Finished generating keys in %s", keyFilePath)
+
+		assert.Nil(t, addrFile.Close())
+		t.Logf("Finished generating addresses in %s", addrFileName)
 	}
 }
 
